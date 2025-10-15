@@ -180,7 +180,7 @@ function DashboardPage() {
             계정 정보
           </InfoTitle>
           <InfoValue>
-            가입일: {new Date(user?.createdAt).toLocaleDateString() || '')}
+            가입일: {new Date(user?.createdAt).toLocaleDateString() || ''}
           </InfoValue>
         </InfoCard>
 
