@@ -12,27 +12,23 @@ api.interceptors.request.use(
     console.log('API 요청:', config.url);
     return config;
   },
-  (error) => {
-    return Promise.reject(error);
-  }
+  (error) => Promise.reject(error)
 );
 
 // 응답 인터셉터
 api.interceptors.response.use(
-  (response) => {
-    return response;
-  },
+  (response) => response,
   (error) => {
     console.error('API 에러:', error);
     return Promise.reject(error);
   }
 );
 
-// API 함수들
-export const restaurantAPI = {
-  // 맛집 목록 가져오기 (가짜 데이터)
+// ------------------------------------
+// ✅ restaurantAPI
+// ------------------------------------
+const restaurantAPI = {
   getRestaurants: async () => {
-    // 실제로는 백엔드 API를 호출하지만, 실습용으로 가짜 데이터 반환
     return {
       data: [
         {
@@ -43,7 +39,7 @@ export const restaurantAPI = {
           priceRange: "7,000-13,000원",
           rating: 4.99,
           description: "맛있는 한식 맛집입니다.",
-          recommendedMenu: ["순두부", "김치찌개","소불고기", "제육볶음"],
+          recommendedMenu: ["순두부", "김치찌개", "소불고기", "제육볶음"],
           likes: 0,
           image: "https://mblogthumb-phinf.pstatic.net/MjAyMjA2MTJfODEg/MDAxNjU0OTYzNTM3MjE1.1BfmrmOsz_B6DBHAnhQSs6qfNIDnssofR-DrzMfigIIg.JHHDheG6ifJjtfKUqLss_mLXWFE9fNJ5BmepNUVXSOog.PNG.cary63/image.png?type=w966"
         },
@@ -66,7 +62,7 @@ export const restaurantAPI = {
           location: "경기 수원시 영통구 월드컵로193번길 7",
           priceRange: "10,000-16,000원",
           rating: 4.89,
-          description: "일식 맛집, 구 허수아비,",
+          description: "일식 맛집, 구 허수아비",
           recommendedMenu: ["냉모밀", "김치돈까스나베", "코돈부르"],
           likes: 0,
           image: "https://search.pstatic.net/common/?src=https%3A%2F%2Fldb-phinf.pstatic.net%2F20190707_63%2F1562462598960nPDMy_JPEG%2FW7iKQEhTMzCF3flC1t0pzgzF.jpeg.jpg"
@@ -75,27 +71,28 @@ export const restaurantAPI = {
     };
   },
 
-  // 맛집 상세 정보 가져오기
   getRestaurantById: async (id) => {
     const restaurants = await restaurantAPI.getRestaurants();
-    const restaurant = restaurants.data.find(r => r.id === parseInt(id));
+    const restaurant = restaurants.data.find((r) => r.id === parseInt(id));
     return { data: restaurant };
   },
 
-  // 인기 맛집 가져오기
   getPopularRestaurants: async () => {
     const restaurants = await restaurantAPI.getRestaurants();
     const sorted = [...restaurants.data].sort((a, b) => b.rating - a.rating);
     return { data: sorted.slice(0, 5) };
-  }
+  },
 };
 
-export default api;
+// ------------------------------------
+// ✅ submissionAPI
+// ------------------------------------
+const submissionAPI = {
+  getSubmissions: async () => ({ data: [] }),
+};
 
-export const submissionAPI = {
-    // 예시: 제출 목록 조회
-    getSubmissions: async () => {
-      return { data: [] }; // 임시 빈 배열
-    },
-  };
+// ------------------------------------
+// ✅ export 정리 (한 번만)
+// ------------------------------------
 export { restaurantAPI, submissionAPI };
+export default api;
