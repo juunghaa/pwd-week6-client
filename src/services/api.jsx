@@ -91,3 +91,11 @@ export const restaurantAPI = {
 };
 
 export default api;
+
+export const submissionAPI = {
+    // 예시: 제출 목록 조회
+    getSubmissions: async () => {
+      return { data: [] }; // 임시 빈 배열
+    },
+  };
+export { restaurantAPI, submissionAPI };
