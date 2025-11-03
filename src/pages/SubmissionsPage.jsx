@@ -1,4 +1,3 @@
-//src/pages/SubmissionsPage.jsx
 import React, { useMemo, useState } from 'react';
 import styled from '@emotion/styled';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
@@ -167,3 +166,4 @@ function SubmissionsPage() {
 }
 
 export default SubmissionsPage;
+

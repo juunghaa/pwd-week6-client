@@ -1,26 +1,154 @@
 import React from 'react';
-import { useAuth } from '../contexts/AuthContext';
+import { useNavigate } from 'react-router-dom';
 import styled from '@emotion/styled';
-import { FaUser, FaEnvelope, FaCrown, FaSignOutAlt, FaCog } from 'react-icons/fa';
-import { Link } from 'react-router-dom';
+import { FaUser, FaEnvelope, FaCalendarAlt, FaShieldAlt, FaSignOutAlt, FaCog, FaClipboardList } from 'react-icons/fa';
+import { useAuth } from '../contexts/AuthContext';
+import { toast } from 'react-toastify';
 
 const DashboardContainer = styled.div`
   max-width: 800px;
-  margin: 2rem auto;
+  margin: 0 auto;
   padding: 2rem;
-  background: white;
-  border-radius: 12px;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
 `;
 
-const Header = styled.div`
+const Welcome = styled.div`
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  padding: 2rem;
+  border-radius: 12px;
+  margin-bottom: 2rem;
   text-align: center;
+  
+  h1 {
+    margin-bottom: 0.5rem;
+    font-size: 2rem;
+  }
+  
+  p {
+    opacity: 0.9;
+    font-size: 1.1rem;
+  }
+`;
+
+const UserCard = styled.div`
+  background: white;
+  border-radius: 12px;
+  padding: 2rem;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
   margin-bottom: 2rem;
 `;
 
-const Avatar = styled.div`
-  width: 100px;
-  height: 100px;
+const CardTitle = styled.h2`
+  margin-bottom: 1.5rem;
+  color: #333;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+`;
+
+const UserInfo = styled.div`
+  display: grid;
+  gap: 1rem;
+`;
+
+const InfoRow = styled.div`
+  display: flex;
+  align-items: center;
+  padding: 1rem;
+  background: #f8f9ff;
+  border-radius: 8px;
+  gap: 1rem;
+  
+  svg {
+    color: #667eea;
+    font-size: 1.2rem;
+  }
+`;
+
+const InfoLabel = styled.span`
+  font-weight: 600;
+  color: #666;
+  min-width: 80px;
+`;
+
+const InfoValue = styled.span`
+  color: #333;
+  flex: 1;
+`;
+
+const ProviderBadge = styled.span`
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.25rem 0.75rem;
+  background: ${props => {
+    switch (props.provider) {
+      case 'google':
+        return '#db4437';
+      case 'naver':
+        return '#03c75a';
+      case 'admin':
+        return '#ff6b35';
+      default:
+        return '#667eea';
+    }
+  }};
+  color: white;
+  border-radius: 15px;
+  font-size: 0.875rem;
+  font-weight: 600;
+`;
+
+const ActionButtons = styled.div`
+  display: flex;
+  gap: 1rem;
+  flex-wrap: wrap;
+  margin-top: 2rem;
+`;
+
+const ActionButton = styled.button`
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1.5rem;
+  border: none;
+  border-radius: 8px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s;
+  
+  &.primary {
+    background: #667eea;
+    color: white;
+    
+    &:hover {
+      background: #5a67d8;
+    }
+  }
+  
+  &.danger {
+    background: #ff4757;
+    color: white;
+    
+    &:hover {
+      background: #ff3742;
+    }
+  }
+`;
+
+const UserAvatar = styled.img`
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  object-fit: cover;
+  margin: 0 auto 1rem;
+  display: block;
+  border: 3px solid #667eea;
+`;
+
+const AvatarPlaceholder = styled.div`
+  width: 80px;
+  height: 80px;
   border-radius: 50%;
   background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
   display: flex;
@@ -28,194 +156,146 @@ const Avatar = styled.div`
   justify-content: center;
   margin: 0 auto 1rem;
   font-size: 2rem;
+  font-weight: bold;
   color: white;
-`;
-
-const UserName = styled.h1`
-  color: #333;
-  margin-bottom: 0.5rem;
-`;
-
-const UserEmail = styled.p`
-  color: #666;
-  margin-bottom: 1rem;
-`;
-
-const UserTypeBadge = styled.div`
-  display: inline-flex;
-  align-items: center;
-  gap: 0.5rem;
-  padding: 0.5rem 1rem;
-  border-radius: 20px;
-  font-size: 0.9rem;
-  font-weight: 600;
-  background: ${props => props.isAdmin ? '#ff6b6b' : '#667eea'};
-  color: white;
-`;
-
-const InfoGrid = styled.div`
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-  gap: 1.5rem;
-  margin: 2rem 0;
-`;
-
-const InfoCard = styled.div`
-  padding: 1.5rem;
-  border: 2px solid #f0f0f0;
-  border-radius: 8px;
-  transition: all 0.3s;
-  
-  &:hover {
-    border-color: #667eea;
-    transform: translateY(-2px);
-  }
-`;
-
-const InfoTitle = styled.h3`
-  color: #333;
-  margin-bottom: 0.5rem;
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-`;
-
-const InfoValue = styled.p`
-  color: #666;
-  font-size: 1.1rem;
-`;
-
-const ActionButtons = styled.div`
-  display: flex;
-  gap: 1rem;
-  justify-content: center;
-  margin-top: 2rem;
-  flex-wrap: wrap;
-`;
-
-const ActionButton = styled(Link)`
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  padding: 0.75rem 1.5rem;
-  border-radius: 8px;
-  text-decoration: none;
-  font-weight: 600;
-  transition: all 0.3s;
-  
-  &.primary {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    color: white;
-    
-    &:hover {
-      transform: scale(1.05);
-    }
-  }
-  
-  &.secondary {
-    background: #f8f9ff;
-    color: #667eea;
-    border: 2px solid #667eea;
-    
-    &:hover {
-      background: #667eea;
-      color: white;
-    }
-  }
-  
-  &.danger {
-    background: #ff6b6b;
-    color: white;
-    
-    &:hover {
-      background: #ff5252;
-    }
-  }
-`;
-
-const LogoutButton = styled.button`
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  padding: 0.75rem 1.5rem;
-  border: 2px solid #ff6b6b;
-  background: white;
-  color: #ff6b6b;
-  border-radius: 8px;
-  cursor: pointer;
-  font-weight: 600;
-  transition: all 0.3s;
-  
-  &:hover {
-    background: #ff6b6b;
-    color: white;
-  }
 `;
 
 function DashboardPage() {
   const { user, logout, isAdmin } = useAuth();
+  const navigate = useNavigate();
 
   const handleLogout = async () => {
     await logout();
+    toast.success('로그아웃되었습니다.');
+    navigate('/', { replace: true });
   };
+
+  const formatDate = (dateString) => {
+    return new Date(dateString).toLocaleDateString('ko-KR', {
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric',
+    });
+  };
+
+  const getProviderDisplayName = (provider) => {
+    switch (provider) {
+      case 'google':
+        return '구글';
+      case 'naver':
+        return '네이버';
+      case 'local':
+        return '이메일';
+      default:
+        return provider;
+    }
+  };
+
+  if (!user) {
+    return <div>사용자 정보를 불러오는 중...</div>;
+  }
 
   return (
     <DashboardContainer>
-      <Header>
-        <Avatar>
-          {user?.name?.charAt(0)?.toUpperCase() || 'U'}
-        </Avatar>
-        <UserName>{user?.name || '사용자'}</UserName>
-        <UserEmail>{user?.email}</UserEmail>
-        <UserTypeBadge isAdmin={isAdmin()}>
-          <FaCrown />
-          {isAdmin() ? '관리자' : '일반 사용자'}
-        </UserTypeBadge>
-      </Header>
+      <Welcome>
+        <h1>환영합니다, {user.name}님!</h1>
+        <p>Ajou Campus Foodmap에 오신 것을 환영합니다.</p>
+      </Welcome>
 
-      <InfoGrid>
-        <InfoCard>
-          <InfoTitle>
-            <FaUser />
-            계정 정보
-          </InfoTitle>
-          <InfoValue>
-            가입일: {new Date(user?.createdAt).toLocaleDateString() || ''}
-          </InfoValue>
-        </InfoCard>
-
-        <InfoCard>
-          <InfoTitle>
-            <FaEnvelope />
-            연락처
-          </InfoTitle>
-          <InfoValue>{user?.email}</InfoValue>
-        </InfoCard>
-      </InfoGrid>
-
-      <ActionButtons>
-        <ActionButton to="/submit" className="primary">
-          <FaCog />
-          맛집 제보하기
-        </ActionButton>
+      <UserCard>
+        <CardTitle>
+          <FaUser /> 프로필 정보
+        </CardTitle>
         
-        <ActionButton to="/list" className="secondary">
-          <FaUser />
-          맛집 둘러보기
-        </ActionButton>
-        
-        {isAdmin() && (
-          <ActionButton to="/admin" className="secondary">
-            <FaCrown />
-            관리자 페이지
-          </ActionButton>
+        {user.avatar ? (
+          <UserAvatar src={user.avatar} alt={user.name} />
+        ) : (
+          <AvatarPlaceholder>
+            {user.name.charAt(0).toUpperCase()}
+          </AvatarPlaceholder>
         )}
         
-        <LogoutButton onClick={handleLogout}>
-          <FaSignOutAlt />
-          로그아웃
-        </LogoutButton>
-      </ActionButtons>
+        <UserInfo>
+          <InfoRow>
+            <FaUser />
+            <InfoLabel>이름:</InfoLabel>
+            <InfoValue>{user.name}</InfoValue>
+          </InfoRow>
+          
+          <InfoRow>
+            <FaEnvelope />
+            <InfoLabel>이메일:</InfoLabel>
+            <InfoValue>{user.email}</InfoValue>
+          </InfoRow>
+          
+          <InfoRow>
+            <FaShieldAlt />
+            <InfoLabel>계정 종류:</InfoLabel>
+            <InfoValue>
+              <ProviderBadge provider={user.provider}>
+                {getProviderDisplayName(user.provider)} 계정
+              </ProviderBadge>
+            </InfoValue>
+          </InfoRow>
+          
+          <InfoRow>
+            <FaShieldAlt />
+            <InfoLabel>사용자 유형:</InfoLabel>
+            <InfoValue>
+              <ProviderBadge provider={user.userType === 'admin' ? 'admin' : 'user'}>
+                {user.userType === 'admin' ? '관리자' : '일반 사용자'}
+              </ProviderBadge>
+            </InfoValue>
+          </InfoRow>
+          
+          <InfoRow>
+            <FaCalendarAlt />
+            <InfoLabel>가입일:</InfoLabel>
+            <InfoValue>{formatDate(user.createdAt)}</InfoValue>
+          </InfoRow>
+        </UserInfo>
+
+        <ActionButtons>
+          <ActionButton 
+            className="primary"
+            onClick={() => navigate('/list')}
+          >
+            맛집 둘러보기
+          </ActionButton>
+          
+          <ActionButton 
+            className="primary"
+            onClick={() => navigate('/submit')}
+          >
+            맛집 제보하기
+          </ActionButton>
+          
+          {isAdmin() && (
+            <>
+              <ActionButton 
+                className="primary"
+                onClick={() => navigate('/admin')}
+              >
+                <FaCog /> 관리자 페이지
+              </ActionButton>
+              
+              <ActionButton 
+                className="primary"
+                onClick={() => navigate('/submissions')}
+              >
+                <FaClipboardList /> 제출 관리
+              </ActionButton>
+            </>
+          )}
+          
+          <ActionButton 
+            className="danger"
+            onClick={handleLogout}
+          >
+            <FaSignOutAlt /> 로그아웃
+          </ActionButton>
+        </ActionButtons>
+      </UserCard>
     </DashboardContainer>
   );
 }
